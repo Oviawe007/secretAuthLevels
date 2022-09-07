@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require('mongoose');
+const encrypt = require('mongoose-encryption');
 
 const app = express();
 
@@ -15,13 +16,17 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser : true})
-.then(() => {console.log("Connected to Database successfully!");})
+.then(() => console.log("Connected to Database successfully!"))
 .catch(err => console.error(err));
 
-const userSchema = {
+
+const userSchema = new mongoose.Schema({
     email : String,
     password : String
-};
+});
+
+const secret = "thisisalongunusablestringforthesecretcode"
+userSchema.plugin(encrypt, { secret: secret , encryptedFields: ['password']});
 
 const User = new mongoose.model('User', userSchema);
 
